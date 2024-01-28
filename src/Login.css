@@ -1,0 +1,20 @@
+.login-container {
+    background-color: #f0f2f5;
+  }
+  
+  .login-image {
+    background-image: url('/public/light.svg'); /* Replace with your image path */
+    background-size: cover;
+    background-position: center;
+    height: 600px;
+  }
+  
+  .ant-row {
+    align-items: center;
+    justify-content: space-around;
+  }
+  
+  .ant-card {
+    padding: 20px;
+  }
+  
