@@ -4,6 +4,10 @@ import { message } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
 import ImgCrop from 'antd-img-crop';
 
+import { Descriptions, Typography } from 'antd';
+import { LinkOutlined } from '@ant-design/icons';
+
+const { Title, Text, Link } = Typography;
 
 
 
@@ -30,13 +34,35 @@ const props = {
         const imgWindow = window.open(src);
         imgWindow?.document.write(image.outerHTML);
     },
-    onChange(info) {
+    async onChange(info) {
         const { status } = info.file;
-        if (status !== 'uploading') {
-        console.log(info.file, info.fileList);
-        }
+          
         if (status === 'done') {
         message.success(`${info.file.name} file uploaded successfully.`);
+
+        const formData = new FormData();
+        formData.append('file', info.file.originFileObj);
+
+        const targetUrl = 'https://b2b.loupefy.com/b2b/similarity'
+        try {
+            const response = await fetch(targetUrl, {
+                method: 'POST',
+                headers: {
+                    'x-access-key': 'c94a79a7-0508-432b-8402-60e4c9e42f89',
+                    // Include any other headers required by the API
+                },
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log(data[0].results);
+        } catch (error) {
+            console.error('Error uploading file:', error);
+        }
         } else if (status === 'error') {
         message.error(`${info.file.name} file upload failed.`);
         }
@@ -48,6 +74,7 @@ const props = {
 
 const Investigation = () => {
   const [investigated, setInvestigated] = useState(false);
+  const [buttonLoading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
     job: '',
@@ -63,7 +90,12 @@ const Investigation = () => {
   };
 
   const handleInvestigate = () => {
-    setInvestigated(true);
+    setLoading(true)
+    setTimeout(() => {
+        buttonLoading
+        setLoading(false);
+        setInvestigated(true);
+    }, 2000);
     // Perform investigation logic here
   };
 
@@ -118,6 +150,7 @@ const Investigation = () => {
             }}
             type="primary" 
             size='large'
+            loading={buttonLoading}
             onClick={handleInvestigate} 
           >
             Investigate
@@ -133,6 +166,35 @@ const Investigation = () => {
                 closable
                 showIcon
             />
+
+        <Title level={4}>Davit Mirianashvili</Title>
+        <div style={{ 
+            background: '#fff',
+            padding: '24px', 
+            borderRadius: '8px',
+            boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+            display: 'flex',
+            flexDirection: 'column'
+        }}>
+            <div style={{display: 'block'}}>
+                <Text>Declared by </Text>
+                <Link href="http://declaration.acb.gov.ge" target="_blank">
+                    declaration.acb.gov.ge
+                </Link>
+            </div>
+
+            <Descriptions column={1} bordered size='small' style={{ margin: '12px 0' }}>
+                <Descriptions.Item label="Salary">5,500 GEL</Descriptions.Item>
+                <Descriptions.Item label="Monthly outgoings">2,500 GEL</Descriptions.Item>
+                <Descriptions.Item label="Cash / Equivalent">20,500 GEL</Descriptions.Item>
+            </Descriptions>
+            <Button style={{alignSelf: 'flex-end'}} 
+                type="primary" icon={<LinkOutlined />} ghost={true} href="https://declaration.acb.gov.ge/Home/DownloadPdf/151757" target="_blank">
+                View full declaration
+            </Button>
+        </div>
+
+
 
 
         </div>
